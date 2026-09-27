@@ -42,6 +42,12 @@ class GameUI {
     int dialogue = 0;
     int quizScore = 0;
     final ArrayDeque<Integer> history = new ArrayDeque<>();
+    // Evidence/clue state for the first case.
+    boolean clue1 = false;
+    boolean clue2 = false;
+    boolean clue3 = false;
+    // Prevent Back navigation from adding a second history entry.
+    boolean navigatingBack = false;
 
     GameUI(Activity a) {
         this.a=a;
@@ -143,7 +149,7 @@ class GameUI {
     }
 
     void showOffice() {
-        if(screen!=1) history.push(screen);
+        if(screen!=1 && !navigatingBack) history.push(screen);
         screen=1; clear();
         ImageView bg=image(R.drawable.office_main,ImageView.ScaleType.CENTER_CROP);
         addFull(bg);
@@ -182,7 +188,7 @@ class GameUI {
     }
 
     void showLibrary() {
-        history.push(screen); screen=2; clear();
+        if(!navigatingBack) history.push(screen); screen=2; clear();
         ImageView bg=image(R.drawable.library_zoom,ImageView.ScaleType.CENTER_CROP);
         addFull(bg);
         overlayTitle("کتابخانه پرونده‌ها",true);
@@ -212,7 +218,7 @@ class GameUI {
     }
 
     void showCase() {
-        history.push(screen); screen=3; clear();
+        if(!navigatingBack) history.push(screen); screen=3; clear();
         ImageView bg=image(R.drawable.office_main,ImageView.ScaleType.CENTER_CROP);
         bg.setColorFilter(Color.argb(125,0,0,0),android.graphics.PorterDuff.Mode.DARKEN);
         addFull(bg); overlayTitle("پرونده ۰۱",true);
@@ -230,7 +236,7 @@ class GameUI {
     }
 
     void showGameplay() {
-        history.push(screen); screen=4; clear();
+        if(!navigatingBack) history.push(screen); screen=4; clear();
         ImageView scene=image(R.drawable.office_main,ImageView.ScaleType.CENTER_CROP);
         scene.setColorFilter(Color.argb(90,0,0,0),android.graphics.PorterDuff.Mode.DARKEN);
         addFull(scene); overlayTitle("حقیقت پشت یک امضا",true);
@@ -268,7 +274,7 @@ class GameUI {
     }
 
     void showEvidence() {
-        history.push(screen); screen=5; clear();
+        if(!navigatingBack) history.push(screen); screen=5; clear();
         ImageView bg=image(R.drawable.office_main,ImageView.ScaleType.CENTER_CROP);
         bg.setColorFilter(Color.argb(130,0,0,0),android.graphics.PorterDuff.Mode.DARKEN);
         addFull(bg); overlayTitle("بررسی مدارک",true);
@@ -292,7 +298,7 @@ class GameUI {
     }
 
     void showQuiz() {
-        history.push(screen); screen=6; clear();
+        if(!navigatingBack) history.push(screen); screen=6; clear();
         LinearLayout bgbox=new LinearLayout(a); bgbox.setOrientation(LinearLayout.VERTICAL);
         bgbox.setPadding(dp(18),dp(20),dp(18),dp(20)); bgbox.setGravity(Gravity.CENTER);
         bgbox.setBackground(bg(Color.rgb(10,28,40),0));
@@ -317,7 +323,7 @@ class GameUI {
     }
 
     void showResult() {
-        history.push(screen); screen=7; clear();
+        if(!navigatingBack) history.push(screen); screen=7; clear();
         LinearLayout box=new LinearLayout(a); box.setOrientation(LinearLayout.VERTICAL); box.setGravity(Gravity.CENTER); box.setPadding(dp(20),dp(20),dp(20),dp(20));
         box.setBackground(bg(Color.rgb(11,28,37),0)); addFull(box);
         TextView h=tv(quizScore==100?"پاسخ درست است ✓":"این پاسخ درست نبود",27,quizScore==100?Color.rgb(125,220,150):Color.rgb(240,160,120)); h.setTypeface(null,1);
@@ -331,7 +337,7 @@ class GameUI {
     }
 
     void showGlossary() {
-        history.push(screen); screen=8; clear(); overlayTitle("واژه‌نامه حقوقی",true);
+        if(!navigatingBack) history.push(screen); screen=8; clear(); overlayTitle("واژه‌نامه حقوقی",true);
         LinearLayout list=new LinearLayout(a); list.setOrientation(LinearLayout.VERTICAL); list.setPadding(dp(15),dp(85),dp(15),dp(20));
         String[][] items={{"خواهان","شخصی که رسیدگی به دعوا را درخواست می‌کند."},{"خوانده","طرفی که دعوا علیه او مطرح شده است."},{"دادخواست","درخواست رسمی آغاز رسیدگی در مواردی که قانون تقدیم دادخواست را لازم دانسته است."},{"خواسته","آنچه خواهان از دادگاه درخواست می‌کند."},{"دلیل","وسیله‌ای که برای اثبات ادعا یا دفاع مورد استناد قرار می‌گیرد."}};
         for(String[] it:items){
@@ -342,7 +348,7 @@ class GameUI {
     }
 
     void showStats() {
-        history.push(screen); screen=9; clear(); overlayTitle("پیشرفت شما",true);
+        if(!navigatingBack) history.push(screen); screen=9; clear(); overlayTitle("پیشرفت شما",true);
         LinearLayout box=new LinearLayout(a); box.setOrientation(LinearLayout.VERTICAL); box.setGravity(Gravity.CENTER); box.setPadding(dp(20),dp(90),dp(20),dp(20));
         TextView h=tv("پیشرفت آموزشی",25,gold); h.setTypeface(null,1);
         TextView p=tv(caseCompleted?"پرونده ۰۱ تکمیل شده\nپیشرفت فصل: ۱۰۰٪\nامتیاز آموزشی: ۱۰۰":"پرونده ۰۱ در حال انجام\nپیشرفت فصل: ۲۵٪\nمفاهیم کشف‌شده: خواهان، خوانده، خواسته، دادخواست",18,white);
@@ -355,7 +361,7 @@ class GameUI {
     }
 
     void showArchive() {
-        history.push(screen); screen=10; clear(); overlayTitle("بایگانی",true);
+        if(!navigatingBack) history.push(screen); screen=10; clear(); overlayTitle("بایگانی",true);
         LinearLayout box=new LinearLayout(a); box.setOrientation(LinearLayout.VERTICAL); box.setGravity(Gravity.CENTER); box.setPadding(dp(25),dp(90),dp(25),dp(20));
         TextView h=tv("پرونده‌های تکمیل‌شده",22,gold); h.setTypeface(null,1);
         TextView p=tv(caseCompleted?"✓ حقیقت پشت یک امضا\nپرونده تکمیل و در بایگانی ثبت شد.":"هنوز پرونده‌ای تکمیل نشده است.\nپرونده جاری از میز دفتر قابل ادامه است.",17,white);
@@ -371,10 +377,15 @@ class GameUI {
     boolean goBack() {
         if(history.isEmpty()) return false;
         int s=history.pop();
-        if(s==0) showSplash(); else if(s==1) showOffice(); else if(s==2) showLibrary();
-        else if(s==3) showCase(); else if(s==4) showGameplay(); else if(s==5) showEvidence();
-        else if(s==6) showQuiz(); else if(s==7) showResult(); else if(s==8) showGlossary();
-        else if(s==9) showStats(); else if(s==10) showArchive();
+        navigatingBack = true;
+        try {
+            if(s==0) showSplash(); else if(s==1) showOffice(); else if(s==2) showLibrary();
+            else if(s==3) showCase(); else if(s==4) showGameplay(); else if(s==5) showEvidence();
+            else if(s==6) showQuiz(); else if(s==7) showResult(); else if(s==8) showGlossary();
+            else if(s==9) showStats(); else if(s==10) showArchive();
+        } finally {
+            navigatingBack = false;
+        }
         return true;
     }
 
